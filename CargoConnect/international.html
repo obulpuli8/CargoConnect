@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CargoConnect - International Shipment</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+    .container {
+      max-width: 600px;
+      margin-top: 50px;
+      padding: 30px;
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    .form-label {
+      font-weight: bold;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 20px;
+    }
+    .footer a {
+      text-decoration: none;
+      color: #007bff;
+    }
+    .btn-primary, .btn-secondary {
+      width: 100%;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="text-center mb-4">International Shipment</h1>
+    <form id="shipmentForm">
+      <div class="mb-3">
+        <label for="arrivalCountry" class="form-label">Arrival Country</label>
+        <input type="text" class="form-control" id="arrivalCountry" required />
+      </div>
+      <div class="mb-3">
+        <label for="customsCleared" class="form-label">Customs Cleared</label>
+        <select class="form-control" id="customsCleared">
+          <option value="yes">Yes</option>
+          <option value="no">No</option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <label for="importDuty" class="form-label">Import Duty (%)</label>
+        <input type="number" class="form-control" id="importDuty" required />
+      </div>
+
+      <button type="button" id="submitShipmentButton" class="btn btn-primary">Submit Shipment</button>
+    </form>
+    <div class="footer">
+      <p class="mt-3">Go back to <a href="index.html">Index</a></p>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('submitShipmentButton').addEventListener('click', async () => {
+      const arrivalCountry = document.getElementById('arrivalCountry').value.trim();
+      const customsCleared = document.getElementById('customsCleared').value;
+      const importDuty = document.getElementById('importDuty').value.trim();
+
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('Please login first');
+        window.location.href = 'login.html';
+        return;
+      }
+
+      try {
+        const response = await fetch('http://localhost:5500/api/international-shipment', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({ arrivalCountry, customsCleared, importDuty })
+        });
+
+        if (!response.ok) {
+          const data = await response.json();
+          throw new Error(data.message || 'Error submitting shipment');
+        }
+
+        alert('Shipment successfully created!');
+      } catch (error) {
+        alert(`Failed to create shipment: ${error.message}`);
+        console.error(error);
+      }
+    });
+  </script>
+</body>
+</html>
